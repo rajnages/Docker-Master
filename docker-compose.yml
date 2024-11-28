@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Web server (NGINX)
+  web:
+    image: nginx:latest
+    container_name: nginx-web
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./html:/usr/share/nginx/html
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  # Backend service (Node.js API)
+  backend:
+    image: node:14
+    container_name: node-backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/mydatabase
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+
+  # MongoDB (database)
+  mongo:
+    image: mongo:latest
+    container_name: mongo-db
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27017:27017"
+
+  # Optional: A network for the containers to communicate
+networks:
+  default:
+    name: my-network
